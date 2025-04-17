@@ -1,0 +1,17 @@
+################################################################################
+# Definitions of REQUIRED variables
+################################################################################
+
+BASE_TAG='23.11.0-alpine3.21'
+CONTAINER_OS='alpine'
+CONTAINER_NAME='web'
+#DEBUG_TRACE='0'
+DEV_TEAM=''
+DOCKER_LOG_DIR='/var/log'
+DOCKER_REGISTRY='s2.ubuntu.home:5000/'
+OS_VERSION='3.21'
+NODE_VERSION='23.11'
+WORK_DIR='/usr/local/service'
+
+FROM_BASE="${DOCKER_REGISTRY}docker.io/node:${BASE_TAG:-1.0.1}"
+TARGET="${DOCKER_REGISTRY}alpine/${CONTAINER_NAME:?}:${CONTAINER_TAG:-latest}"

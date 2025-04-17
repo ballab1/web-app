@@ -1,0 +1,108 @@
+body {
+  background: white;
+  color: black;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  margin: 0 auto;
+  text-align: center;
+}
+.all {
+  height: 100%;
+  width: 100%;
+}
+.box {
+  display: table-cell;
+}
+.btn {
+  align-items: center;
+  background-color: #D2FFFF;
+  border-radius: 10px;
+  border: 2px solid white;
+  box-shadow: 0 5px #999;
+  cursor: pointer;
+  display: table-cell;
+  height: 64px;
+  justify-content: center;
+  margin: 5px 5px 5px 5px;
+  padding: 5px 5px 5px 5px;
+  text-align: center;
+  width: 180px;
+  z-index: 2;
+}
+.btn:hover {
+  background-color: #80FFFF;
+}
+.btn:active {
+  background-color: #80FFFF;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+.center {
+  width: auto;
+  margin: 0 auto;
+}
+.footer {
+  background: green;
+  color: beige;
+  display: table-row;
+  height:10px;
+  width: 100%;
+}
+.header {
+  background-color: white;
+  border: 3px solid #CCCCCC;
+  box-shadow: 1px 0px 0 3px #CCCCCC;
+  color: #4281C8;
+  height: 60px;
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+}
+.left {
+  text-align: left;
+  width: 100%;
+}
+.leftsidebar {
+  position: relative;
+  width: 10px;
+  left: 0px;
+  top: 0px
+}
+.main {
+  position: relative;
+  top: 70px;
+}
+.middle {
+  width: 80%;
+}
+.rightsidebar {
+  position: relative;
+  width: 10px;
+  right: 0px;
+  top: 0px
+}
+.row {
+  display: table-row;
+  width: 100%;
+}
+.summary {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 11px;
+  padding: 10px 14px 10px 14px;
+  width: 52px;
+  display: block;
+  background-color: orange;
+}
+.table {
+  display: table;
+}
+.title {
+  font-size: 25pt;
+  font-weight: bold;
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  width: 100%;
+}
+.vspace {
+  height:10px;
+}

@@ -1,0 +1,53 @@
+
+import groovy.transform.Field
+
+@Library(['jenkins-global-lib@main']) _
+
+
+pipeline {
+    agent {
+        kubernetes {
+            defaultContainer 'jnlp'
+            yamlFile 'ci/jenkins-pipeline.yaml'
+            showRawYaml(false)
+        }
+    }
+
+    environment {
+        GIT_LFS_SKIP_SMUDGE=1
+        DEBUG = 0
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5', daysToKeepStr: '10'))
+        timestamps()
+        ansiColor('xterm')
+    }
+
+    stages {
+         stage ('Report Build Start') {
+            steps {
+                reportBuildStart(script: this)
+            }
+         }
+         stage('Generate environment for Build') {
+            steps {
+                container(name: 'jnlp') {
+                    sh 'ci/build.sh -e'
+                }
+            }
+        }
+         stage('Build Branch') {
+            steps {
+                container(name: 'kaniko', shell: '/busybox/sh') {
+                    sh 'ci/kaniko.sh'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            reportBuildResult(script: this)
+        }
+    }
+}

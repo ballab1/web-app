@@ -1,0 +1,27 @@
+
+services:
+  web:
+    env_file:
+      - ci/.env
+    build:
+      args:
+        FROM_BASE: ${DOCKER_REGISTRY:-s2.ubuntu.home:5000/docker.io/node:${BASE_TAG:-23.11.0-alpine3.21}
+      context: .
+      dockerfile: ci/Dockerfile
+      labels:
+        container.build.time: $CONTAINER_BUILD_TIME
+        container.fingerprint: $CONTAINER_FINGERPRINT
+        container.git.refs: $CONTAINER_GIT_REFS
+        container.git.commit: $CONTAINER_GIT_COMMIT
+        container.git.url: $CONTAINER_GIT_URL
+        container.origin: $CONTAINER_ORIGIN
+        container.orginal.name: $CONTAINER_NAME
+        container.os: $CONTAINER_OS
+        container.parent: $CONTAINER_PARENT
+    container_name: "${CONTAINER_NAME:-developer}"
+    environment:
+        HOSTNAME: "${HOSTNAME}"
+        HOST_IPS: "${HOST_IPS}"
+        WORK_DIR: '/usr/local/utilities'
+    image: "${DOCKER_REGISTRY:-s2.ubuntu.home:5000/}alpine/${CONTAINER_NAME:?}:${CONTAINER_TAG:-latest}"
+

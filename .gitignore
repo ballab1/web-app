@@ -1,0 +1,7 @@
+.qodo
+.vscode
+node_modules
+archive
+web.json
+ci/.env
+*log

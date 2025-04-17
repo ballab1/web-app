@@ -1,0 +1,59 @@
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+      run: jnlp
+      app: executors
+spec:
+  containers:
+    - name: jnlp
+      image: s2.ubuntu.home:5000/docker.io/jenkins/inbound-agent:3301.v4363ddcca_4e7-3-jdk21
+      resources:
+        limits:
+          cpu: 1
+          memory: 2Gi
+        requests:
+          cpu: 1
+          memory: 2Gi
+      imagePullPolicy: Always
+      stdin: true
+      tty: true
+      volumeMounts:
+        - mountPath: /home/jenkins
+          name: sharedvolume
+    - name: kaniko
+      image: s2.ubuntu.home:5000/docker.io/bitnami/kaniko:1.23.2-debian-12-r11
+      command:
+        - /busybox/cat
+      resources:
+        limits:
+          cpu: 400m
+          memory: 8Gi
+        requests:
+          cpu: 400m
+          memory: 8Gi
+      tty: true
+      volumeMounts:
+        - mountPath: /kaniko/.docker/config.json
+          name: dockerconfigjson
+          readOnly: true
+          subPath: config.json
+        - mountPath: /home
+          name: sharedvolume
+        - mountPath: /home/ca-certificates/
+          name: ca-certificates
+  volumes:
+    - name: ca-certificates
+      secret:
+        secretName: dell-emc-ca-bundle
+    - name: dockerconfigjson
+      secret:
+        secretName: drp-docker-config
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: sharedvolume
+      emptyDir: {}
+
