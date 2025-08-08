@@ -15,3 +15,5 @@ WORK_DIR='/usr/local/service'
 
 FROM_BASE="${DOCKER_REGISTRY}docker.io/node:${BASE_TAG:-1.0.1}"
 TARGET="${DOCKER_REGISTRY}alpine/${CONTAINER_NAME:?}:${CONTAINER_TAG:-latest}"
+#PREVIOUS=ssh s5 kubectl get pod --namespace web -o jsonpath='{.items[0].spec.containers[0].image}'
+#UPDATE_TAG=ssh s5 kubectl set image -n web deployment/web web=${TARGET}

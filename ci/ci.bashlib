@@ -19,6 +19,27 @@ function ci::checkForJQ()
     fi
     return 0
 }
+#--------------------------------------------------------------------------------
+function ci::docker_compose()
+{
+    local TARGET="$(grep -E '^TARGET=' ci/.env | cut -d '=' -f 2 | sed -e "s|'||g")"
+    local PREVIOUS="$(grep -E '^#PREVIOUS=' ci/project.settings | awk '{print substr($0,11)}')"  # substr($0,10) renmoves '#PREVIOUS='
+    eval "PREVIOUS=$($PREVIOUS)"
+
+    docker-compose build || exit
+    docker push "$TARGET" || exit
+    if [ "${#PREVIOUS}" -gt 0 ] && [ "$PREVIOUS" != "$TARGET" ]; then
+        echo "docker-utilities delete --no_confirm_delete '$PREVIOUS"
+        docker-utilities delete --no_confirm_delete "$PREVIOUS" ||:
+        echo "docker rmi '$PREVIOUS'"
+        docker rmi "$PREVIOUS" ||:
+        # update running image
+        local UPDATE_TAG="$(grep -E '^#UPDATE_TAG=' ci/project.settings | awk '{print substr($0,13)}'| sed 's|${TARGET}|'"${TARGET}"'|' )"
+        echo "$UPDATE_TAG"
+        echo "$($UPDATE_TAG)"
+    fi
+    echo "Built: '${TARGET}'"
+}
 
 #--------------------------------------------------------------------------------
 function ci::die()
@@ -177,7 +198,7 @@ function ci::set_dot_env()
 {
     local -r envFile="${ROOT_DIR}/ci/.env"
     local -a params=('CONTAINER_BUILD_HOST' 'CONTAINER_BUILD_TIME' 'CONTAINER_FINGERPRINT' 'CONTAINER_GIT_COMMIT' \
-                     'CONTAINER_GIT_REFS' 'CONTAINER_GIT_URL' 'CONTAINER_ORIGIN' 'CONTAINER_TAG' 'GID' 'HOST_IPS' 'USER_ID')
+                     'CONTAINER_GIT_REFS' 'CONTAINER_GIT_URL' 'CONTAINER_ORIGIN' 'CONTAINER_TAG' 'GID' 'HOST_IPS' 'USER_ID' )
     local -a env_params replaceables
     mapfile -t env_params < <(ci::getProjectParams)
     mapfile -t replaceables < <(ci::getReplaceableParams)
@@ -247,6 +268,7 @@ function ci::set_dot_env()
                 echo "CONTAINER_PARENT='$FROM_BASE'"
             fi
         done
+
     }  > "$envFile"
 
     echo "Updated: $envFile"

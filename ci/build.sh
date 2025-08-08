@@ -4,8 +4,8 @@
 function main()
 {
 
-    local -r longopts='help,build,env,update'
-    local -r shortopts='hbeu'
+    local -r longopts='help,build,docker_compose,env,update'
+    local -r shortopts='hbceu'
     local params="$(getopt --longoptions "${longopts}" --options "${shortopts}" --name "$PROGRAM_NAME" -- "$@")" || usage $?
     eval set -- "$params"
 
@@ -18,6 +18,11 @@ function main()
                 ;;
             -b|--build)
                 ci::kaniko_build 2>&1 | tee "${ROOT_DIR}/kaniko-build.log"
+                shift 1
+                exit
+                ;;
+            -c|--docker_compose)
+                ci::docker_compose 2>&1 | tee "${ROOT_DIR}/docker-compose.log"
                 shift 1
                 exit
                 ;;
@@ -50,10 +55,11 @@ function usage()
 {
     local status="${1:-0}"
 
-    echo "$0 [-b|-e|-u]"
-    echo "    -b|build     - build the docker image using kaniko"
-    echo "    -e|env       - update the .env file"
-    echo "    -u|update    - update ci files"
+    echo "$0 [-b|-dc|-e|-u]"
+    echo "    -b|build               - build the docker image using kaniko"
+    echo "    -c|docker_compose      - build the docker image using docker-compose"
+    echo "    -e|env                 - update the .env file"
+    echo "    -u|update              - update ci files"
     exit "$status"
 }
 

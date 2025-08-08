@@ -3,7 +3,8 @@ const MENUREF_WIDTH = 180;  // 156
 
 function btnClick() {
   if (this.title && this.title != '#')
-    window.open(this.title, '_self');
+//    window.open(this.title, '_self');
+    window.open(this.title, '_blank');
 }
 
 
