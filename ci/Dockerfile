@@ -1,4 +1,4 @@
-ARG FROM_BASE=${DOCKER_REGISTRY:-s2.ubuntu.home:5000/}docker.io/node:${BASE_TAG:-23.11.0-alpine3.21}
+ARG FROM_BASE=${DOCKER_REGISTRY:-}docker.io/node:${BASE_TAG:-23.11.0-alpine3.21}
 FROM $FROM_BASE
 
 LABEL Maintainers="bobb@k8s.home"

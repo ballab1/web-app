@@ -26,7 +26,7 @@ function ci::docker_compose()
     local PREVIOUS="$(grep -E '^#PREVIOUS=' ci/project.settings | awk '{print substr($0,11)}')"  # substr($0,10) renmoves '#PREVIOUS='
     eval "PREVIOUS=$($PREVIOUS)"
 
-    docker-compose build || exit
+    docker-compose -f ci/docker-compose.yml build || exit
     docker push "$TARGET" || exit
     if [ "${#PREVIOUS}" -gt 0 ] && [ "$PREVIOUS" != "$TARGET" ]; then
         echo "docker-utilities delete --no_confirm_delete '$PREVIOUS"

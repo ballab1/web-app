@@ -4,7 +4,7 @@
 
 [ "${DEBUG:-0}" != 0 ] && set -x
 
-KANIKO_IMAGE='s2.ubuntu.home:5000/docker.io/bitnami/kaniko:1.23.2-debian-12-r11'
+KANIKO_IMAGE="${DOCKER_REGISTRY}docker.io/bitnami/kaniko:1.25.0-debian-12-r4"
 
 ################################################################################
 build() {

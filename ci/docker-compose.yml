@@ -5,9 +5,9 @@ services:
       - .env
     build:
       args:
-        FROM_BASE: ${DOCKER_REGISTRY:-s2.ubuntu.home:5000/}docker.io/node:${BASE_TAG:-23.11.0-alpine3.21}
-      context: .
-      dockerfile: Dockerfile
+        FROM_BASE: ${DOCKER_REGISTRY:-}docker.io/node:${BASE_TAG:-23.11.0-alpine3.21}
+      context: ..
+      dockerfile: ci/Dockerfile
       labels:
         container.build.time: $CONTAINER_BUILD_TIME
         container.fingerprint: $CONTAINER_FINGERPRINT
@@ -23,5 +23,5 @@ services:
         HOSTNAME: "${CONTAINER_BUILD_HOST}"
         HOST_IPS: "${HOST_IPS}"
         WORK_DIR: '/usr/local/utilities'
-    image: "${DOCKER_REGISTRY:-s2.ubuntu.home:5000/}alpine/${CONTAINER_NAME:?}:${CONTAINER_TAG:-latest}"
+    image: "${DOCKER_REGISTRY:-}alpine/${CONTAINER_NAME:?}:${CONTAINER_TAG:-latest}"
 

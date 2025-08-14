@@ -1,7 +1,7 @@
 
 import groovy.transform.Field
 
-@Library(['jenkins-global-lib@main']) _
+@Library('jenkins-sharedlibs')_
 
 
 pipeline {
@@ -27,7 +27,7 @@ pipeline {
     stages {
          stage ('Report Build Start') {
             steps {
-                reportBuildStart(script: this)
+                projectReporter('start', script: this)
             }
          }
          stage('Generate environment for Build') {
@@ -47,7 +47,7 @@ pipeline {
     }
     post {
         always {
-            reportBuildResult(script: this)
+            projectReporter('finished', script: this)
         }
     }
 }
