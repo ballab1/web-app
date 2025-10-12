@@ -120,14 +120,16 @@ function get_html(banner, validButtons) {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" >
+    <link rel="preconnect" href="client.js" />
     <script type="text/javascript" src="client.js"></script>
-    <title>${banner}</title>
+    <link rel="preconnect" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>${banner}</title>
   </head>
   <body onload="init()">
     <div class="table all">
-      <div class="header">
-        <div class="title center">${banner}</div>
+      <div class="row header">
+        <div class="box title center">${banner}</div>
       </div>
       <div class="row main all center">
         <div class="box"></div>
@@ -135,7 +137,7 @@ function get_html(banner, validButtons) {
           <div id="main" class="table center" style="width: 100%;">
             <div class="row vspace" style="width: 100%;"></div>
             <div class="row center">
-              <div class="table center" style="width: auto;">
+              <div class="box table center" style="width: auto;">
                 <div class="row center">
                   <div class="box left" style="width: auto;"></div>
                   ${validButtons}

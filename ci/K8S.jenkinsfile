@@ -3,15 +3,11 @@ import groovy.transform.Field
 
 @Library('jenkins-sharedlibs')_
 
+Field projectSettings = 'ci/project.settings'
+Field podYaml = 'ci/jenkins-pipeline.yaml'
 
 pipeline {
-    agent {
-        kubernetes {
-            defaultContainer 'jnlp'
-            yamlFile 'ci/jenkins-pipeline.yaml'
-            showRawYaml(false)
-        }
-    }
+    agent
 
     environment {
         GIT_LFS_SKIP_SMUDGE=1
@@ -25,23 +21,26 @@ pipeline {
     }
 
     stages {
-         stage ('Report Build Start') {
+         stage('Generate yaml for Build') {
             steps {
-                projectReporter('start', script: this)
+                updateDependentFiles(projectSettings)
+                archiveArtifacts artifacts: podYaml, fingerprint: true
             }
          }
-         stage('Generate environment for Build') {
-            steps {
-                container(name: 'jnlp') {
-                    sh 'ci/build.sh -e'
-                }
-            }
-        }
          stage('Build Branch') {
-            steps {
-                container(name: 'kaniko', shell: '/busybox/sh') {
-                    sh 'ci/kaniko.sh'
-                }
+             steps {
+                 script {
+                     // Use the Kubernetes plugin to create a pod from the generated YAML
+                     def podYAML = readFile(podYaml)
+                     podTemplate(yaml: podYAML) {
+                         node(POD_LABEL) {
+                             // Run build in 'build' container
+                             container(name: 'kaniko', shell: '/busybox/sh') {
+                                 sh 'ci/kaniko.sh'
+                             }
+                         }
+                     }
+                 }
             }
         }
     }

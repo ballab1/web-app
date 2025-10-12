@@ -4,7 +4,7 @@
 
 [ "${DEBUG:-0}" != 0 ] && set -x
 
-KANIKO_IMAGE="${DOCKER_REGISTRY}docker.io/bitnami/kaniko:1.25.0-debian-12-r4"
+KANIKO_IMAGE="${DOCKER_REGISTRY}gcr.io/kaniko-project/executor:v1.24.0.debug"
 
 ################################################################################
 build() {
@@ -15,7 +15,7 @@ build() {
 
 ################################################################################
 build_args() {
-    sed -E -e 's|^([^#=]+)=.*$|\1|' -e '/^(\s*#.*)*$/d' 'ci/.env' | \
+    sed -E -e 's|^([^#=]+)=.*$|\1|' -e '/^(\s*#.*)*$/d' '.env' | \
     while read -r param; do
         printf '%s %s \n' '--build-arg' "'$param=$(print_arg "$param")'"
     done
@@ -46,7 +46,7 @@ build_params() {
        '--verbosity info' \
        "--context 'dir://$WORKSPACE'" \
        "--destination '$TARGET'" \
-       '--dockerfile ci/Dockerfile' \
+       '--dockerfile Dockerfile' \
        '--insecure' \
        '--insecure-pull' \
        "--label 'container.build.time=$CONTAINER_BUILD_TIME'" \
@@ -90,10 +90,10 @@ print_arg () {
 DOCKER=$(is_docker)
 
 # search for '.env' file and make sure WORKSPACE coresponds to the directory it is in
-if [ "${WORKSPACE}" ] && [ -f "${WORKSPACE}/ci/.env" ]; then
+if [ "${WORKSPACE}" ] && [ -f "${WORKSPACE}/.env" ]; then
     cd "$WORKSPACE" ||:
 
-elif [ -f ci/.env ]; then
+elif [ -f .env ]; then
     WORKSPACE="$(pwd)"
 
 elif [ "$DOCKER" = 'native' ]; then
@@ -110,12 +110,12 @@ if [ $DOCKER = 'native' ]; then
     trap exit_handler EXIT
 fi
 
-if [ ! -f 'ci/.env' ]; then
+if [ ! -f '.env' ]; then
     echo 'No environment definition file'
     exit 1
 fi
 
-. ci/.env
+. ./.env
 
 # show pretty version of the command
 echo $(build) | sed -E -e 's| --| \\\n   --|g'

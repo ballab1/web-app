@@ -22,11 +22,11 @@ function ci::checkForJQ()
 #--------------------------------------------------------------------------------
 function ci::docker_compose()
 {
-    local TARGET="$(grep -E '^TARGET=' ci/.env | cut -d '=' -f 2 | sed -e "s|'||g")"
-    local PREVIOUS="$(grep -E '^#PREVIOUS=' ci/project.settings | awk '{print substr($0,11)}')"  # substr($0,10) renmoves '#PREVIOUS='
+    local TARGET="$(grep -E '^TARGET=' .env | cut -d '=' -f 2 | sed -e "s|'||g")"
+    local PREVIOUS="$(grep -E '^#PREVIOUS=' project.settings | awk '{print substr($0,11)}')"  # substr($0,10) renmoves '#PREVIOUS='
     eval "PREVIOUS=$($PREVIOUS)"
 
-    docker-compose -f ci/docker-compose.yml build || exit
+    docker-compose -f docker-compose.yml build || exit
     docker push "$TARGET" || exit
     if [ "${#PREVIOUS}" -gt 0 ] && [ "$PREVIOUS" != "$TARGET" ]; then
         echo "docker-utilities delete --no_confirm_delete '$PREVIOUS"
@@ -34,7 +34,7 @@ function ci::docker_compose()
         echo "docker rmi '$PREVIOUS'"
         docker rmi "$PREVIOUS" ||:
         # update running image
-        local UPDATE_TAG="$(grep -E '^#UPDATE_TAG=' ci/project.settings | awk '{print substr($0,13)}'| sed 's|${TARGET}|'"${TARGET}"'|' )"
+        local UPDATE_TAG="$(grep -E '^#UPDATE_TAG=' project.settings | awk '{print substr($0,13)}'| sed 's|${TARGET}|'"${TARGET}"'|' )"
         echo "$UPDATE_TAG"
         echo "$($UPDATE_TAG)"
     fi
@@ -160,11 +160,11 @@ function ci::initialize()
     export PROGRAM_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
     export PROGRAM_NAME="$(basename "${BASH_SOURCE[0]}" | sed 's|.sh$||')"
     export HOST_IPS="$(hostname -i)"
-    export GID="$(id -g)"
-    export UID="$(id -u)"
-    export USER_ID="${UID}:${GID}"
+#    export GID="$(id -g)"
+#    export UID="$(id -u)"
+#    export USER_ID="${UID}:${GID}"
 
-    PROJECT_SETTINGS="${ROOT_DIR}/ci/project.settings"
+    PROJECT_SETTINGS="${PROGRAM_DIR}/project.settings"
 
     [ -f "$PROJECT_SETTINGS" ] || PROJECT_SETTINGS="${ROOT_DIR}/project.settings"
     [ -f "$PROJECT_SETTINGS" ] || ci::die "No PROJECT_SETTINGS defined or unable to locate $PROJECT_SETTINGS"
@@ -190,15 +190,15 @@ function ci::kaniko_build()
 {
     # Create image for Kafka consumer service
     ci::set_dot_env
-    "${ROOT_DIR}/ci/kaniko.sh"
+    "${PROGRAM_DIR}/kaniko.sh"
 }
 
 #--------------------------------------------------------------------------------
 function ci::set_dot_env()
 {
-    local -r envFile="${ROOT_DIR}/ci/.env"
+    local -r envFile="${PROGRAM_DIR}/.env"
     local -a params=('CONTAINER_BUILD_HOST' 'CONTAINER_BUILD_TIME' 'CONTAINER_FINGERPRINT' 'CONTAINER_GIT_COMMIT' \
-                     'CONTAINER_GIT_REFS' 'CONTAINER_GIT_URL' 'CONTAINER_ORIGIN' 'CONTAINER_TAG' 'GID' 'HOST_IPS' 'USER_ID' )
+                     'CONTAINER_GIT_REFS' 'CONTAINER_GIT_URL' 'CONTAINER_ORIGIN' 'CONTAINER_TAG' 'HOST_IPS' )
     local -a env_params replaceables
     mapfile -t env_params < <(ci::getProjectParams)
     mapfile -t replaceables < <(ci::getReplaceableParams)

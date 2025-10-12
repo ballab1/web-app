@@ -65,11 +65,14 @@ function usage()
 
 #--------------------------------------------------------------------------------
 
-if [ -e ci/ci.bashlib ]; then
-  source ci/ci.bashlib
- elif [ -e ci.bashlib ] && [ "$(basename "$(pwd)")" = 'ci' ]; then
-  cd ..
-  source ci/ci.bashlib
+if [ -e ci.bashlib ]; then
+  source ci.bashlib
+elif [ -e ci/ci.bashlib ]; then
+  cd ci
+  source ci.bashlib
+elif [ -e "$(dirname "$0")/ci.bashlib" ]; then
+  cd "$(dirname "$0")"
+  source ci.bashlib
 else
   echo 'cannot execute this script from current directory'
   exit
