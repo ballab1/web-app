@@ -1,10 +1,7 @@
-const MENUREF_HEIGHT = 55;  // 57
-const MENUREF_WIDTH = 180;  // 156
 
 function btnClick() {
   if (this.title && this.title != '#')
-//    window.open(this.title, '_self');
-    window.open(this.title, '_blank');
+    window.open(this.title, '_blank'); // '_blank' opens new window, '_self' replaces existing
 }
 
 
@@ -26,8 +23,6 @@ function init() {
       if (div && item.html != '#') {
         div.className = "btn";
         div.title = item.html;
-        div.style.height = MENUREF_HEIGHT+'px';
-        div.style.width = MENUREF_WIDTH+'px';
         div.innerHTML = item.text.replace(': ', '<br>');
         div.addEventListener('click', btnClick, false);
       }

@@ -29,7 +29,8 @@ build_cmd() {
         # have to create a copy of DOCKER_SECRET
         # because some local environment permissions prevent access to original file
         cp ~/.docker/config.json $DOCKER_SECRET
-        printf '%s \n' 'docker run --rm' \
+        printf '%s \n' 'docker run ' \
+                       '--rm' \
                        "--volume '$WORKSPACE:$WORKSPACE'" \
                        "--volume '$DOCKER_SECRET:/kaniko/.docker/config.json:ro'" \
                        "--user '0:$GID'" \
@@ -46,7 +47,7 @@ build_params() {
        '--verbosity info' \
        "--context 'dir://$WORKSPACE'" \
        "--destination '$TARGET'" \
-       '--dockerfile Dockerfile' \
+       "--dockerfile '$CONTEXT/Dockerfile'" \
        '--insecure' \
        '--insecure-pull' \
        "--label 'container.build.time=$CONTAINER_BUILD_TIME'" \
@@ -90,18 +91,17 @@ print_arg () {
 DOCKER=$(is_docker)
 
 # search for '.env' file and make sure WORKSPACE coresponds to the directory it is in
-if [ "${WORKSPACE}" ] && [ -f "${WORKSPACE}/.env" ]; then
-    cd "$WORKSPACE" ||:
-
-elif [ -f .env ]; then
-    WORKSPACE="$(pwd)"
-
-elif [ "$DOCKER" = 'native' ]; then
-    WORKSPACE="$(readlink -f "$(dirname "$0")/..")"
-    cd "$WORKSPACE" ||:
+if [ -z "${WORKSPACE}" ]; then
+    if [ "$DOCKER" = 'native' ]; then
+        WORKSPACE="$(readlink -f "$(dirname "$0")")"
+    else
+        WORKSPACE="$(readlink -f "$(pwd)")"
+    fi
+    [ "$(basename "$WORKSPACE")" = 'ci' ] && WORKSPACE="$(dirname "$WORKSPACE")"
 fi
 # remove any training backslash
 WORKSPACE="$(echo $WORKSPACE | sed 's:/*$::')"
+cd "$WORKSPACE" ||:
 
 
 # specify Docker secret
@@ -110,12 +110,20 @@ if [ $DOCKER = 'native' ]; then
     trap exit_handler EXIT
 fi
 
-if [ ! -f '.env' ]; then
-    echo 'No environment definition file'
+
+# figure out out context
+if [ -z "$CONTEXT" ]; then
+    for CONTEXT in '.' 'ci' '..';do
+        [ -f "${ROOT_DIR}/${CONTEXT}/project.settings" ] && break
+    done
+fi
+if [ ! -f "$CONTEXT/.env" ]; then
+    echo 'kaniko.sh: No environment definition file'
     exit 1
 fi
 
-. ./.env
+. "$CONTEXT/.env"
+
 
 # show pretty version of the command
 echo $(build) | sed -E -e 's| --| \\\n   --|g'
