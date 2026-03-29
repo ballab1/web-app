@@ -7,7 +7,13 @@ Field projectSettings = 'ci/project.settings'
 Field podYaml = 'ci/jenkins-pipeline.yaml'
 
 pipeline {
-    agent
+    agent {
+        kubernetes {
+            defaultContainer 'jnlp'
+            yamlFile 'ci/jenkins-pipeline.yaml'
+            showRawYaml(false)
+        }
+    }
 
     environment {
         GIT_LFS_SKIP_SMUDGE=1
@@ -21,32 +27,24 @@ pipeline {
     }
 
     stages {
-         stage('Generate yaml for Build') {
+         stage('Generate environment for Build') {
             steps {
-                updateDependentFiles(projectSettings)
-                archiveArtifacts artifacts: podYaml, fingerprint: true
+                container(name: 'jnlp') {
+                    sh 'ci/build.sh -e'
+                }
             }
-         }
+        }
          stage('Build Branch') {
-             steps {
-                 script {
-                     // Use the Kubernetes plugin to create a pod from the generated YAML
-                     def podYAML = readFile(podYaml)
-                     podTemplate(yaml: podYAML) {
-                         node(POD_LABEL) {
-                             // Run build in 'build' container
-                             container(name: 'kaniko', shell: '/busybox/sh') {
-                                 sh 'ci/kaniko.sh'
-                             }
-                         }
-                     }
-                 }
+            steps {
+                container(name: 'kaniko', shell: '/busybox/sh') {
+                    sh 'ci/kaniko.sh'
+                }
             }
         }
     }
     post {
         always {
-            projectReporter('finished', script: this)
+            reportBuildResult(script: this)
         }
     }
 }
